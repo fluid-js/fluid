@@ -5,6 +5,13 @@
         ".": "./src/main.ts",
         "./server": "./src/ssr.ts"
     },
+    "compilerOptions": {
+        "lib": [
+            "deno.window",
+            "ESNext",
+            "DOM"
+        ]
+    },
     "tasks": {
         "dev": "deno run --allow-env --allow-read --allow-run scripts/build.ts",
         "build": "deno run --allow-env --allow-read --allow-run scripts/build.ts --no-dev"
