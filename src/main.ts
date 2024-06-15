@@ -1,24 +1,59 @@
 // deno-lint-ignore-file
 
-// we use let, == instead of ===, and .map instead of .forEach to shrink bundle size.
-export let kSTATE: symbol = Symbol();
-let bool = "boolean", text: (val: any) => Text = (val) => typeof val == bool ? new Text() : new Text(val), deps: State[] = [], events = "events" as const, style = "style" as const;
+/**
+ * This module contains the main client exports for Fluid.
+ * @module
+ */
 
+// we use let, == instead of ===, and .map instead of .forEach to shrink bundle size.
+/**
+ * A symbol that uniquely identifies signals created by Fluid.
+ */
+export let kSTATE: symbol = Symbol();
+
+let bool = "boolean",
+    text: (val: any) => Text = (val) => typeof val == bool ? new Text() : new Text(val),
+    deps: State[] = [],
+    events = "events" as const,
+    style = "style" as const;
+
+/**
+ * A signal created by Fluid.
+ */
 export type State<T = unknown> = {
     $: typeof kSTATE,
     val: T,
     readonly _b: ((val: T, old: T) => void)[]
 }
 
+/**
+ * All types that can be passed as a child to a component.
+ */
 export type Child = string | number | boolean | null | undefined | void | Node | StateChild;
+/**
+ * Interface hack so {@link Child} is technically not a circular type.
+ */
 interface StateChild extends State<Child> {};
+/**
+ * An array of children.
+ */
 export type Children = Child[];
-
+/**
+ * A component that does not take any props or children.
+ */
 export type NullComponent = () => Child;
+/**
+ * A component that takes in props of the shape {@link T} and children.
+ */
 export type Component<T = {}> = (props: T, ...children: Children) => Child;
 
 let isTextChild: (child: unknown) => boolean = (child) => ["string", "number", bool].includes(typeof child);
 
+/**
+ * Creates a DOM {@link Node} from a {@link Child}.
+ * @param child The child to create from.
+ * @returns The created node.
+ */
 export let child: (child: Child) => Node = (child) => child == null
     ? text("")
     : isTextChild(child)
@@ -49,12 +84,26 @@ let tagFactory: (tagName: string) => (props?: any, ...children: Children) => HTM
     return el;
 }
 
+/**
+ * An object which you can destructure or use directly to get the tag components.
+ */
 export let tags: Record<string, Component<{}>> = new Proxy<Record<string, Component>>({}, {
     get: (_, p) => tagFactory(p as string),
 });
 
-export let mount: (el: Element, comp: Component) => void = (el, comp) => el.append(child(comp({})));
+/**
+ * Mounts a {@link NullComponent} to a DOM {@link Element}.
+ * @param el The element to mount to.
+ * @param comp The component to mount.
+ */
+export let mount: (el: Element, comp: NullComponent) => void = (el, comp) => el.append(child(comp()));
 
+/**
+ * Creates a signal with a given initial value.
+ * @param initial The initial value of the signal.
+ * @returns The created signal.
+ * @reactive
+ */
 export let state: <T>(initial: T) => State<T> = <T>(initial: T) => {
     let val = initial;
     return {
@@ -71,7 +120,12 @@ export let state: <T>(initial: T) => State<T> = <T>(initial: T) => {
     } as State<T>;
 }
 
-// memo: derives state
+/**
+ * Creates a derived state with a factory function that can reference dependencies.
+ * @param fn A factory to create the value. Just reference `state.val` and we'll track it.
+ * @returns A signal that automatically calls the factory and updates when any dependencies change.
+ * @reactive
+ */
 export let memo: <T>(fn: () => T) => State<T> = <T>(fn: () => T) => {
     deps = [];
     let st = state(fn());
@@ -80,7 +134,17 @@ export let memo: <T>(fn: () => T) => State<T> = <T>(fn: () => T) => {
     return st;
 }
 
-// and effect is void memo (in types only to lower bundle size)
+/**
+ * Runs a given side effect whenever a dependency updates.
+ * @param fn A side effect. Just reference `state.val` and we'll track it.
+ * @returns "Nothing" (does the same as memo, just re-exported to reduce bundle size).
+ * @reactive
+ */
 export let effect = memo as (fn: () => void) => void;
 
-export let hydrate: (el: Element, comp: Component) => void = (el, comp) => el.replaceChildren(child(comp({})));
+/**
+ * Hydrates a given DOM {@link Element} with a given {@link NullComponent}.
+ * @param el The DOM element to hydrate.
+ * @param comp The component to run to hydrate the element.
+ */
+export let hydrate: (el: Element, comp: NullComponent) => void = (el, comp) => el.replaceChildren(child(comp()));
