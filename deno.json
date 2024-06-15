@@ -1,0 +1,13 @@
+{
+    "name": "@fluid/core",
+    "version": "1.0.0",
+    "exports": {
+        ".": "./src/main.ts",
+        "./server": "./src/ssr.ts"
+    },
+    "tasks": {
+        "dev": "deno run --allow-env --allow-read --allow-run scripts/build.ts",
+        "build": "deno run --allow-env --allow-read --allow-run scripts/build.ts --no-dev"
+    },
+    "exclude": ["test", "dev", "dist", "_src_old"]
+}
