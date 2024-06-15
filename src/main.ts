@@ -1,10 +1,5 @@
 // deno-lint-ignore-file
 
-/**
- * This module contains the main client exports for Fluid.
- * @module
- */
-
 // we use let, == instead of ===, and .map instead of .forEach to shrink bundle size.
 /**
  * A symbol that uniquely identifies signals created by Fluid.
