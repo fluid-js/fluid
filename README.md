@@ -8,7 +8,7 @@
 
 Here's a basic example assuming you can resolve JSR imports ([see here](https://github.com/lucacasonato/esbuild_deno_loader)):
 ```ts
-import { tags, state, mount } from "jsr:@fluid/core";
+import { tags, mount } from "jsr:@fluid/core";
 
 // Destructure from `tags` (you don't have to, but it's recommended)
 const { div, h1, h3, ul, li, a } = tags;
