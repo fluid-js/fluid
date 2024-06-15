@@ -1,8 +1,8 @@
 // deno-lint-ignore-file
 
 // we use let, == instead of ===, and .map instead of .forEach to shrink bundle size.
-export let kSTATE = Symbol();
-let bool = "boolean", text = (val: any) => typeof val == bool ? new Text() : new Text(val), deps: State[] = [], events = "events" as const, style = "style" as const;
+export let kSTATE: symbol = Symbol();
+let bool = "boolean", text: (val: any) => Text = (val) => typeof val == bool ? new Text() : new Text(val), deps: State[] = [], events = "events" as const, style = "style" as const;
 
 export type State<T = unknown> = {
     $: typeof kSTATE,
@@ -17,9 +17,9 @@ export type Children = Child[];
 export type NullComponent = () => Child;
 export type Component<T = {}> = (props: T, ...children: Children) => Child;
 
-let isTextChild = (child: unknown) => ["string", "number", bool].includes(typeof child);
+let isTextChild: (child: unknown) => boolean = (child) => ["string", "number", bool].includes(typeof child);
 
-export let child = (child: Child) => child == null
+export let child: (child: Child) => Node = (child) => child == null
     ? text("")
     : isTextChild(child)
         ? text(child) // @ts-expect-error
@@ -29,14 +29,14 @@ export let child = (child: Child) => child == null
                 : (child as State<Node>).val)
             : child as Node;
 
-let bind = <T extends string | Node>(state: State<T>, node: Node) => {
+let bind: <T extends string | Node>(state: State<T>, node: Node) => Node = <T extends string | Node>(state: State<T>, node: Node) => {
     if (node instanceof Text) state._b.push(v => node.textContent = v as string);
     else state._b.push(_ => node.parentNode && (node as ChildNode).replaceWith(child(state as unknown as StateChild)));
     return node;
 }
 
 // don't export to reduce bundle size
-let tagFactory = (tagName: string) => (props: any = {}, ...children: Children) => {
+let tagFactory: (tagName: string) => (props?: any, ...children: Children) => HTMLElement = (tagName: string) => (props: any = {}, ...children: Children) => {
     let el = document.createElement(tagName);
     if (props instanceof Node || isTextChild(props)) {
         children = [props, ...children];
@@ -49,13 +49,13 @@ let tagFactory = (tagName: string) => (props: any = {}, ...children: Children) =
     return el;
 }
 
-export let tags = new Proxy<Record<string, Component>>({}, {
+export let tags: Record<string, Component<{}>> = new Proxy<Record<string, Component>>({}, {
     get: (_, p) => tagFactory(p as string),
 });
 
-export let mount = (el: Element, comp: Component) => el.append(child(comp({})));
+export let mount: (el: Element, comp: Component) => void = (el, comp) => el.append(child(comp({})));
 
-export let state = <T>(initial: T) => {
+export let state: <T>(initial: T) => State<T> = <T>(initial: T) => {
     let val = initial;
     return {
         $: kSTATE,
@@ -72,7 +72,7 @@ export let state = <T>(initial: T) => {
 }
 
 // memo: derives state
-export let memo = <T>(fn: () => T) => {
+export let memo: <T>(fn: () => T) => State<T> = <T>(fn: () => T) => {
     deps = [];
     let st = state(fn());
     if (deps.length < 1) return st;
@@ -83,4 +83,4 @@ export let memo = <T>(fn: () => T) => {
 // and effect is void memo (in types only to lower bundle size)
 export let effect = memo as (fn: () => void) => void;
 
-export let hydrate = (el: Element, comp: Component) => el.replaceChildren(child(comp({})));
+export let hydrate: (el: Element, comp: Component) => void = (el, comp) => el.replaceChildren(child(comp({})));
