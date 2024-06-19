@@ -108,10 +108,16 @@ export let tags: Record<string, Component<{}>> = new Proxy<Record<string, Compon
 });
 
 /**
- * Renders a given {@link NullComponent} to a string.
+ * Renders a given {@link NullComponent} to a string synchronously.
  * @param comp The component to render.
  * @returns The rendered HTML.
  */
 export let render: (comp: NullComponent) => string = (comp) => child(comp()).$_t;
+/**
+* Renders a given {@link NullComponent} to a string asynchronously.
+* @param comp The component to render.
+* @returns The rendered HTML.
+*/
+export let renderAsync: (comp: NullComponent) => Promise<string> = async (comp) => render(comp);
 
 export { state, memo, effect, type State, kSTATE } from "./main.ts";
