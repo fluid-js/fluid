@@ -11,6 +11,23 @@ let from = (text: string) => ({ $_t: text }) as Rendered;
 
 let text: (val: any) => Rendered = (val: any) => typeof val == "boolean" ? from("") : val !== false ? from(serialize(String(val))) : from("");
 
+let voidEls = [
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr"
+]
+
 /**
  * A rendered SSR element.
  */
@@ -79,7 +96,7 @@ let tagFactory: (tagName: string) => (props?: any, ...children: Children) => Ren
     }
     el += ">";
     children.map(x => el += child(x).$_t);
-    el += `</${tagName}>`;
+    if(!voidEls.includes(tagName)) el += `</${tagName}>`;
     return from(el);
 }
 
