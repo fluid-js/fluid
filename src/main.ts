@@ -41,6 +41,7 @@ export type NullComponent = () => Child;
  * A component that takes in props of the shape {@link T} and children.
  */
 export type Component<T = {}> = (props: T, ...children: Children) => Child;
+type TagComponent = (props: any | Child, ...children: Children) => Child;
 
 let isTextChild: (child: unknown) => boolean = (child) => ["string", "number", bool].includes(typeof child);
 
@@ -82,7 +83,7 @@ let tagFactory: (tagName: string) => (props?: any, ...children: Children) => HTM
 /**
  * An object which you can destructure or use directly to get the tag components.
  */
-export let tags: Record<string, Component<{}>> = new Proxy<Record<string, Component>>({}, {
+export let tags: Record<string, TagComponent> = new Proxy<Record<string, TagComponent>>({}, {
     get: (_, p) => tagFactory(p as string),
 });
 
