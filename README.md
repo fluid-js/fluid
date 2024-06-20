@@ -2,7 +2,7 @@
 > Fluid has all the features (and more) of VanJS and is almost 2x smaller in both min and min.gz.
 
 <img alt="Fluid's JSR version" src="https://img.shields.io/jsr/v/@fluid/core?color=%23f7df1e">
-<img alt="Fluid's gzipped size of 596 bytes" src="https://img.shields.io/badge/gzipped_size-596_bytes-blue">
+<img alt="Fluid's gzipped size of 609 bytes" src="https://img.shields.io/badge/gzipped_size-609_bytes-blue">
 
 **Fluid** is an ***unbelievably lightweight***, ***extremely fast***, and ***truly reactive*** UI framework that interacts directly with the DOM. You can use Fluid today without neither a compilation step nor a server!
 

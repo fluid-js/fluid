@@ -10,7 +10,8 @@ let bool = "boolean",
     text: (val: any) => Text = (val) => typeof val == bool ? new Text() : new Text(val),
     deps: State[] = [],
     events = "events" as const,
-    style = "style" as const;
+    style = "style" as const,
+    map = "map" as const;
 
 /**
  * A signal created by Fluid.
@@ -69,14 +70,14 @@ let bind: <T extends string | Node>(state: State<T>, node: Node) => Node = <T ex
 // don't export to reduce bundle size
 let tagFactory: (tagName: string) => (props?: any, ...children: Children) => HTMLElement = (tagName: string) => (props: any = {}, ...children: Children) => {
     let el = document.createElement(tagName);
-    if (props instanceof Node || isTextChild(props)) {
+    if (props instanceof Node || isTextChild(props) || props[map]) {
         children = [props, ...children];
     } else {
-        Object.keys(props).map(k => ![events, style].includes(k as "events" | "style") && el.setAttribute(k, props[k]));
-        if(props[events]) Object.keys(props[events]).map(k => el.addEventListener(k, props[events][k]));
-        if(props[style]) Object.keys(props[style]).map(k => el[style].setProperty(k, props[style][k]));
+        Object.keys(props)[map](k => ![events, style].includes(k as "events" | "style") && el.setAttribute(k, props[k]));
+        if(props[events]) Object.keys(props[events])[map](k => el.addEventListener(k, props[events][k]));
+        if(props[style]) Object.keys(props[style])[map](k => el[style].setProperty(k, props[style][k]));
     }
-    children.map(x => el.append(child(x)));
+    children.flat()[map](x => el.append(child(x)));
     return el;
 }
 
@@ -109,7 +110,7 @@ export let state: <T>(initial: T) => State<T> = <T>(initial: T) => {
             return val;
         },
         set val(newVal) {
-            this._b.map(x => x(newVal, val));
+            this._b[map](x => x(newVal, val));
             val = newVal;
         },
         _b: [],
@@ -126,7 +127,7 @@ export let memo: <T>(fn: () => T) => State<T> = <T>(fn: () => T) => {
     deps = [];
     let st = state(fn());
     if (deps.length < 1) return st;
-    deps.map(x => x._b.push(_ => st.val = fn()));
+    deps[map](x => x._b.push(_ => st.val = fn()));
     return st;
 }
 

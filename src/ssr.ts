@@ -53,7 +53,7 @@ export type NullComponent = () => Child;
  * A component that takes in props of the shape {@link T} and children.
  */
 export type Component<T = {}> = (props: T, ...children: Children) => Child;
-type TagComponent = (props: any | Child, ...children: Children) => Child;
+type TagComponent = (...children: any[]) => Child;
 
 let isTextChild: (child: unknown) => boolean = (child: unknown) => ["string", "number", "boolean"].includes(typeof child);
 
@@ -89,14 +89,14 @@ let serialize: (input: string) => string = (input) => {
 // don't export to reduce bundle size
 let tagFactory: (tagName: string) => (props?: any, ...children: Children) => Rendered = (tagName) => (props = {}, ...children) => {
     let el = `<${tagName}`
-    if (props["$_t"] || isTextChild(props)) {
+    if (props["$_t"] || isTextChild(props) || props.map) { // props.map is a hack to get small bundle size but detect arrays
         children = [props, ...children];
     } else {
         Object.keys(props).map(k => !["events", "style"].includes(k) && (el += ` ${serialize(k)}="${serialize(props[k])}"`));
         if(props.style) el += ` style="${Object.entries(props.style).map(([k, v]) => `${serialize(k)}: ${serialize(v as string)}`).join(";")}"`
     }
     el += ">";
-    children.map(x => el += child(x).$_t);
+    children.flat(Infinity).map(x => el += child(x).$_t);
     if(!voidEls.includes(tagName)) el += `</${tagName}>`;
     return from(el);
 }
