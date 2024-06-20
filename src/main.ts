@@ -42,7 +42,7 @@ export type NullComponent = () => Child;
  * A component that takes in props of the shape {@link T} and children.
  */
 export type Component<T = {}> = (props: T, ...children: Children) => Child;
-type TagComponent = (props: any | Child, ...children: Children) => Child;
+type TagComponent = (...children: any[]) => Child;
 
 let isTextChild: (child: unknown) => boolean = (child) => ["string", "number", bool].includes(typeof child);
 
