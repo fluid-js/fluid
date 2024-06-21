@@ -66,6 +66,11 @@ Fluid beats out literally every other reactive UI library in size. Every. Single
 ### Easy to Use
 Fluid has a very simple and small API that allows even beginners in JS/TS to create advanced applications with our powerful reactive primitives and easy, declarative, and flexible element creation APIs. This means that anyone with any programming experience at all can create a vast array of web applications with ease.
 
+## Generous Sponsors
+> These generous people have helped support the project financially.
+> Want to get your name here? Click Sponsor on the side of this repository or click [here](https://github.com/sponsors/WorriedArrow). Thank you!
+- Santiago Aguilar Hernández ([@sant123](https://github.com/sant123))
+
 ## With all that said...
 Go build something with Fluid! Build your dream app, prototype a little game, or make an advanced image editor. Anything goes! Put it on GitHub and let us know what you've created! We love to see your awesome projects made with this tiny library!
 
