@@ -19,7 +19,7 @@ let bool = "boolean",
 export type State<T = unknown> = {
     $: typeof kSTATE,
     val: T,
-    readonly _b: ((val: T, old: T) => void)[]
+    readonly _b: ((val: T) => void)[]
 }
 
 /**
@@ -110,8 +110,8 @@ export let state: <T>(initial: T) => State<T> = <T>(initial: T) => {
             return val;
         },
         set val(newVal) {
-            this._b[map](x => x(newVal, val));
             val = newVal;
+            this._b[map](x => x(val));
         },
         _b: [],
     } as State<T>;
