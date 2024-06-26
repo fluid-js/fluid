@@ -9,7 +9,7 @@ import { State, kSTATE } from "./main.ts";
 
 let from = (text: string) => ({ $_t: text }) as Rendered;
 
-let text: (val: any) => Rendered = (val: any) => typeof val == "boolean" ? from("") : val !== false ? from(serialize(String(val))) : from("");
+let text: (val: any) => Rendered = (val: any) => from(`${(typeof val == "boolean" ? from("") : val !== false ? from(serialize(String(val))) : from("")).$_t}<!--/-->`);
 
 let voidEls = [
     "area",
