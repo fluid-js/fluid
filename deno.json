@@ -1,6 +1,6 @@
 {
     "name": "@fluid/core",
-    "version": "1.0.9",
+    "version": "1.0.10",
     "exports": {
         ".": "./src/main.ts",
         "./server": "./src/ssr.ts"
