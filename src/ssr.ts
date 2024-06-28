@@ -9,7 +9,7 @@ import { State, kSTATE } from "./main.ts";
 
 let from = (text: string) => ({ $_t: text }) as Rendered;
 
-let text: (val: any) => Rendered = (val: any) => from(`${(typeof val == "boolean" ? from("") : val !== false ? from(serialize(String(val))) : from("")).$_t}<!--/-->`);
+let text: (val: any, nonCommentable?: boolean) => Rendered = (val: any, nonCommentable: boolean = true) => from(`${(typeof val == "boolean" ? from("") : val !== false ? from(serialize(String(val))) : from("")).$_t}${!nonCommentable ? "<!--/-->" : ""}`);
 
 let voidEls = [
     "area",
@@ -26,6 +26,18 @@ let voidEls = [
     "source",
     "track",
     "wbr"
+]
+
+let nonCommentable = [
+    "title",
+    "textarea",
+    "script",
+    "style",
+    "iframe",
+    "noembed",
+    "noframes",
+    "noscript",
+    "plaintext"
 ]
 
 /**
@@ -62,16 +74,16 @@ let isTextChild: (child: unknown) => boolean = (child: unknown) => ["string", "n
  * @param child The child to create from.
  * @returns The created node.
  */
-export let child: (child: Child) => Rendered = (child: Child) => child == null
-    ? text("")
+export let child: (child: Child, nonCommentable?: boolean) => Rendered = (child: Child, nonCommentable: boolean = false) => child == null
+    ? text("", nonCommentable)
     : isTextChild(child)
-        ? text(child)
+        ? text(child, nonCommentable)
         : (child as unknown as StateChild).$ == kSTATE
-            ? bind(child as State<string | Rendered>)
+            ? bind(child as State<string | Rendered>, nonCommentable)
             : child as Rendered;
 
-let bind: <T extends string | Rendered>(state: State<T>) => Rendered = <T extends string | Rendered>(state: State<T>) => {
-    return isTextChild(state.val) ? text(state.val) : state.val as Rendered;
+let bind: <T extends string | Rendered>(state: State<T>, nonCommentable?: boolean) => Rendered = <T extends string | Rendered>(state: State<T>, nonCommentable: boolean = false) => {
+    return isTextChild(state.val) ? text(state.val, nonCommentable) : state.val as Rendered;
 }
 
 let replacements = {
@@ -96,7 +108,7 @@ let tagFactory: (tagName: string) => (props?: any, ...children: Children) => Ren
         if(props.style) el += ` style="${Object.entries(props.style).map(([k, v]) => `${serialize(k)}: ${serialize(v as string)}`).join(";")}"`
     }
     el += ">";
-    children.flat(Infinity).map(x => el += child(x).$_t);
+    children.flat(Infinity).map(x => el += child(x, nonCommentable.includes(tagName)).$_t);
     if(!voidEls.includes(tagName)) el += `</${tagName}>`;
     return from(el);
 }
